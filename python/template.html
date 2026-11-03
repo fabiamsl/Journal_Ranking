@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal Ratings</title>
+<meta name="description" content="ABDC 2025 und VHB 2024 Journal-Ratings nebeneinander durchsuchen">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f8f7f3;
+  --surface: #ffffff;
+  --ink: #171717;
+  --ink-2: #404040;
+  --muted: #57534e;
+  --line: #e7e5df;
+  --line-strong: #d6d3cb;
+  --accent: #8a6a12;          /* dark gold, 5.4:1 on white */
+  --accent-soft: #f6efd9;
+  --focus: #2563eb;
+  --t1-bg: #14532d; --t1-fg: #ffffff;   /* A* / A+ */
+  --t2-bg: #dcfce7; --t2-fg: #14532d;   /* A */
+  --t3-bg: #e0ecff; --t3-fg: #1e3a8a;   /* B */
+  --t4-bg: #fdf0d5; --t4-fg: #7c4a03;   /* C */
+  --t5-bg: #efedea; --t5-fg: #44403c;   /* D */
+  --none-fg: #78716c;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(23,23,23,.04), 0 4px 16px rgba(23,23,23,.04);
+  --shadow-hover: 0 2px 4px rgba(23,23,23,.06), 0 10px 28px rgba(23,23,23,.07);
+  --serif: "Crimson Pro", Georgia, "Times New Roman", serif;
+  --sans: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.55 var(--sans);
+}
+a { color: inherit; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+
+/* header */
+header { padding: 48px 0 8px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { flex: none; }
+h1 { font: 700 2.4rem/1.1 var(--serif); letter-spacing: -.01em; margin: 0; }
+.lead { color: var(--muted); margin: 8px 0 0; max-width: 62ch; }
+.lead b { color: var(--ink-2); font-weight: 700; }
+
+/* search */
+.searchbar {
+  position: sticky; top: 0; z-index: 20;
+  background: linear-gradient(var(--bg) 78%, rgba(248,247,243,0));
+  padding: 20px 0 14px;
+}
+.field { position: relative; }
+.field svg.icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+#q {
+  width: 100%; height: 60px; padding: 0 112px 0 54px;
+  font: 400 1.15rem var(--sans); color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: 16px;
+  box-shadow: var(--shadow); transition: border-color .18s, box-shadow .18s;
+}
+#q::placeholder { color: #8b857d; }
+#q:hover { border-color: #bdb8ad; }
+#q:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow); }
+.field .right { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 6px; align-items: center; }
+kbd {
+  font: 600 .78rem var(--sans); color: var(--muted); background: var(--bg);
+  border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 6px; padding: 2px 7px;
+}
+.iconbtn {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--muted); cursor: pointer; transition: background .15s, color .15s;
+}
+.iconbtn:hover { background: var(--bg); color: var(--ink); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 14px; }
+.control { display: flex; align-items: center; gap: 8px; }
+.control label, .control .lbl { font-size: .88rem; color: var(--muted); font-weight: 700; }
+select {
+  height: 40px; padding: 0 36px 0 12px; font: 400 .95rem var(--sans); color: var(--ink);
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2357534e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: 1.5px solid var(--line-strong); border-radius: 10px; appearance: none; cursor: pointer; max-width: 100%;
+}
+select:hover { border-color: #bdb8ad; }
+.seg { display: inline-flex; background: #efede7; border-radius: 11px; padding: 3px; gap: 2px; }
+.seg button {
+  height: 34px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent;
+  font: 700 .86rem var(--sans); color: var(--muted); cursor: pointer; transition: background .15s, color .15s;
+}
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+/* status line */
+.status { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 6px 0 12px; color: var(--muted); font-size: .9rem; min-height: 1.4em; }
+
+/* result cards */
+#results { display: grid; gap: 12px; padding-bottom: 24px; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); transition: box-shadow .2s, border-color .2s;
+}
+.card:hover { box-shadow: var(--shadow-hover); border-color: var(--line-strong); }
+.card-main { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 16px 24px; padding: 18px 20px; align-items: center; }
+.title { font: 600 1.32rem/1.25 var(--serif); margin: 0; overflow-wrap: anywhere; }
+.title mark { background: var(--accent-soft); color: inherit; border-radius: 3px; padding: 0 1px; }
+.alt { color: var(--muted); font-size: .88rem; margin-top: 3px; overflow-wrap: anywhere; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; color: var(--muted); font-size: .85rem; }
+.meta span { display: inline-flex; align-items: center; gap: 5px; }
+.tag { font-size: .74rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 1px 7px; border-radius: 999px; }
+
+.ratings { display: grid; grid-template-columns: repeat(2, 132px); gap: 10px; }
+.rbox { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 11px; background: #fcfcfa; }
+.rbox .src { font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.rbox .sub { font-size: .75rem; color: var(--muted); margin-top: 4px; line-height: 1.3; min-height: 1.3em; }
+.badge {
+  display: inline-grid; place-items: center; min-width: 46px; height: 38px; padding: 0 10px; margin-top: 6px;
+  font: 700 1.25rem var(--sans); border-radius: 9px; letter-spacing: .01em;
+}
+.badge.sm { min-width: 34px; height: 26px; font-size: .88rem; margin: 0; border-radius: 7px; padding: 0 7px; }
+.t1 { background: var(--t1-bg); color: var(--t1-fg); }
+.t2 { background: var(--t2-bg); color: var(--t2-fg); }
+.t3 { background: var(--t3-bg); color: var(--t3-fg); }
+.t4 { background: var(--t4-bg); color: var(--t4-fg); }
+.t5 { background: var(--t5-bg); color: var(--t5-fg); }
+.none { background: transparent; color: var(--none-fg); border: 1.5px dashed var(--line-strong); font-size: .8rem; font-weight: 700; }
+.badge.none { height: 38px; }
+
+.card-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--line); padding: 4px 8px 4px 12px; }
+.toggle {
+  display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px; border: 0; background: transparent;
+  color: var(--ink-2); font: 700 .86rem var(--sans); border-radius: 9px; cursor: pointer; transition: background .15s;
+}
+.toggle:hover { background: var(--bg); }
+.toggle svg { transition: transform .2s; }
+.toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.toggle:disabled { color: var(--none-fg); cursor: default; background: transparent; }
+.toggle:disabled svg { display: none; }
+html, body { overflow-x: hidden; }
+.copy { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px; border: 0; background: transparent; color: var(--muted); font: 700 .82rem var(--sans); border-radius: 9px; cursor: pointer; transition: background .15s, color .15s; }
+.copy:hover { background: var(--bg); color: var(--ink); }
+.areas { display: none; padding: 4px 20px 18px; }
+.areas.open { display: block; }
+.areas table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.areas th { text-align: left; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 700; padding: 8px 8px; border-bottom: 1px solid var(--line); }
+.areas td { padding: 7px 8px; border-bottom: 1px solid #f1efea; vertical-align: middle; }
+.areas tr.sel td { background: var(--accent-soft); }
+.areas td.code { font-weight: 700; color: var(--ink-2); width: 72px; }
+.areas td.num { color: var(--muted); text-align: right; white-space: nowrap; }
+.areas .note { color: var(--muted); font-size: .82rem; margin-top: 10px; }
+
+/* intro / empty */
+.intro { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 22px 20px; box-shadow: var(--shadow); }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+.stat { background: var(--bg); border-radius: 12px; padding: 12px 14px; }
+.stat .n { font: 700 1.6rem/1.1 var(--serif); }
+.stat .l { font-size: .8rem; color: var(--muted); }
+.intro h2 { font: 600 1.15rem var(--serif); margin: 0 0 8px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  height: 36px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface);
+  font: 400 .9rem var(--sans); color: var(--ink-2); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.chip:hover { border-color: var(--accent); background: var(--accent-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; color: var(--muted); font-size: .85rem; align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.hint { color: var(--muted); font-size: .9rem; margin: 14px 0 0; }
+.more { display: flex; justify-content: center; padding: 4px 0 30px; }
+.btn {
+  height: 44px; padding: 0 20px; border-radius: 11px; border: 1.5px solid var(--line-strong); background: var(--surface);
+  font: 700 .92rem var(--sans); color: var(--ink); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 22px 0 40px; color: var(--muted); font-size: .84rem; }
+footer p { margin: 4px 0; max-width: 80ch; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: .9rem; transition: opacity .2s, transform .2s; z-index: 50; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 720px) {
+  header { padding-top: 28px; }
+  h1 { font-size: 1.9rem; }
+  .card-main { grid-template-columns: 1fr; }
+  .ratings { grid-template-columns: 1fr 1fr; }
+  .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  #q { height: 54px; font-size: 1.05rem; padding-right: 56px; }
+  kbd { display: none; }
+  .wrap { padding: 0 16px; }
+  .controls .control { width: 100%; }
+  .control label { white-space: nowrap; }
+  #area { flex: 1; min-width: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#8a6a12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="m12 6 1.2 2.4 2.6.4-1.9 1.8.5 2.6L12 12l-2.4 1.2.5-2.6-1.9-1.8 2.6-.4Z"/></svg>
+      <h1>Journal Ratings</h1>
+    </div>
+    <p class="lead">Zeitschriften suchen und die Ratings von <b>ABDC 2025</b> und <b>VHB 2024</b> nebeneinander sehen. Suche nach Titel, Abkürzung (z.&nbsp;B. JFE) oder ISSN.</p>
+  </header>
+
+  <div class="searchbar" role="search">
+    <div class="field">
+      <label for="q" class="sr-only">Zeitschrift suchen</label>
+      <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="Journal of Finance, JFQA, 1540-6261 …" autofocus>
+      <div class="right">
+        <kbd title="Taste / setzt den Cursor in die Suche">/</kbd>
+        <button class="iconbtn" id="clear" type="button" aria-label="Suche leeren" hidden>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="control">
+        <label for="area">VHB-Bereich</label>
+        <select id="area"></select>
+      </div>
+      <div class="control">
+        <span class="lbl" id="listlbl">Gelistet in</span>
+        <div class="seg" role="group" aria-labelledby="listlbl" id="listfilter">
+          <button type="button" data-v="all" aria-pressed="true">Alle</button>
+          <button type="button" data-v="both" aria-pressed="false">Beiden</button>
+          <button type="button" data-v="abdc" aria-pressed="false">ABDC</button>
+          <button type="button" data-v="vhb" aria-pressed="false">VHB</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" aria-live="polite"><span id="count"></span><span id="sortinfo"></span></div>
+  <main id="results"></main>
+  <div class="more" id="more" hidden><button class="btn" type="button" id="morebtn">Weitere Treffer anzeigen</button></div>
+
+  <footer>
+    <p id="srcinfo"></p>
+    <p>ABDC: Australian Business Deans Council, Journal Quality List 2025 (A*, A, B, C). VHB: Verband der Hochschullehrerinnen und Hochschullehrer für Betriebswirtschaft, Publication Media Rating 2024, Teilratings der Wissenschaftlichen Kommissionen (A+, A, B, C, D). Prozentangabe beim VHB: Anteil der Stimmen, die mindestens dieses Rating vergeben haben.</p>
+    <p>Die Daten wurden automatisch aus den Originallisten gelesen. Ohne Gewähr; im Zweifel gilt die Originalliste.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const J = DATA.journals;
+  const AREAS = DATA.meta.areas;
+  const ABDC_RANK = { "A*": 4, "A": 3, "B": 2, "C": 1 };
+  const VHB_RANK = { "A+": 5, "A": 4, "B": 3, "C": 2, "D": 1 };
+  const STOP = new Set(["of","and","the","for","in","on","a","an","to","und","fur","der","die","das","de","la"]);
+  const PAGE = 40;
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem("jr:" + k); return v === null ? d : v; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem("jr:" + k, v); } catch (e) {} },
+  };
+
+  // ---------- normalising and indexing (same rules as journal_search.py)
+  const norm = (t) => (t || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/&/g, " and ").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+  function acronyms(title) {
+    const out = new Set();
+    for (const m of title.matchAll(/\(([A-Z][A-Za-z&]{1,9})\)/g)) out.add(m[1].toLowerCase());
+    for (const m of title.matchAll(/\b([A-Z]{2,8})\b\s*[:\-–]/g)) out.add(m[1].toLowerCase());
+    const words = norm(title.replace(/\(.*?\)/g, " ")).split(" ").filter((w) => w && !STOP.has(w));
+    if (words.length >= 2) out.add(words.map((w) => w[0]).join(""));
+    return out;
+  }
+  for (const j of J) {
+    const names = [j.title, ...j.alt_titles];
+    j._keys = [...new Set(names.map(norm))].map((k) => k.replace(/^the /, ""));
+    j._acr = new Set(names.flatMap((n) => [...acronyms(n)]));
+    j._main = new Set(names.map((n) => norm(n.split(/\s*(?::|\s[-–\/]\s)\s*/)[0]).replace(/^the /, "")));
+    j._prom = (ABDC_RANK[j.abdc] || 0) + (VHB_RANK[j.vhb_best] || 0);
+  }
+
+  function similarity(a, b) {           // Dice coefficient on bigrams, close to difflib for this use
+    if (a === b) return 1;
+    const grams = (s) => { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const g = s.slice(i, i + 2); m.set(g, (m.get(g) || 0) + 1); } return m; };
+    const A = grams(a), B = grams(b); let inter = 0;
+    for (const [g, n] of A) inter += Math.min(n, B.get(g) || 0);
+    return (2 * inter) / Math.max(1, a.length - 1 + b.length - 1);
+  }
+
+  function score(q, j) {
+    if (!q) return 0;
+    const compact = q.replace(/ /g, "");
+    if (/^\d{4}\d{3}[\dx]$/.test(compact)) {
+      const issn = (compact.slice(0, 4) + "-" + compact.slice(4)).toUpperCase();
+      return j.issn.includes(issn) ? 100 : 0;
+    }
+    const qn = q.replace(/^the /, "");
+    const words = qn.split(" ").filter((w) => !STOP.has(w));
+    const ws = words.length ? words : qn.split(" ");
+    let best = 0;
+    for (const k of j._keys) {
+      if (k === qn) return 100;
+      if (j._main.has(qn)) best = Math.max(best, 95);
+      if (k.startsWith(qn)) best = Math.max(best, 88 - Math.min(k.length - qn.length, 30) * 0.2);
+      const kw = k.split(" ");
+      if (ws.every((w) => kw.some((x) => x.startsWith(w)))) {
+        best = Math.max(best, 60 + 20 * (ws.join(" ").length / Math.max(k.length, 1)));
+      } else if (k.includes(qn)) best = Math.max(best, 55);
+    }
+    if (qn.length >= 2 && j._acr.has(qn.replace(/ /g, ""))) best = Math.max(best, 82);
+    if (best < 50 && qn.length >= 5) {
+      const r = Math.max(...j._keys.map((k) => similarity(qn, k)));
+      if (r >= 0.75) best = Math.max(best, 45 * r);
+    }
+    return best;
+  }
+
+  // ---------- state
+  const state = {
+    q: "",
+    area: store.get("area", "BAFI"),
+    list: store.get("list", "all"),
+    shown: PAGE,
+    browse: false,
+    open: new Set(),
+  };
+  if (!AREAS[state.area]) state.area = "BAFI";
+
+  const areaSel = $("#area");
+  areaSel.innerHTML = Object.entries(AREAS)
+    .sort((a, b) => a[1].de.localeCompare(b[1].de, "de"))
+    .map(([c, n]) => `<option value="${c}">${esc(n.de)} (${c})</option>`).join("");
+  areaSel.value = state.area;
+
+  // ---------- helpers
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function tier(r) { return { "A*": "t1", "A+": "t1", "A": "t2", "B": "t3", "C": "t4", "D": "t5" }[r] || "none"; }
+  function badge(r, cls = "") { return r ? `<span class="badge ${cls} ${tier(r)}">${esc(r)}</span>` : `<span class="badge ${cls} none">–</span>`; }
+  function passesList(j) {
+    const a = !!j.abdc, v = Object.keys(j.vhb).length > 0;
+    return state.list === "all" || (state.list === "both" && a && v) || (state.list === "abdc" && a) || (state.list === "vhb" && v);
+  }
+  function highlight(title, q) {
+    const words = norm(q).split(" ").filter((w) => w.length > 1 && !STOP.has(w));
+    if (!words.length) return esc(title);
+    const re = new RegExp("\\b(" + words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+    return esc(title).replace(re, "<mark>$1</mark>");
+  }
+  const vhbSorted = (j) => Object.entries(j.vhb).sort((a, b) => (VHB_RANK[b[1].rating] || 0) - (VHB_RANK[a[1].rating] || 0) || b[1].votes - a[1].votes);
+
+  // ---------- rendering
+  function card(j, q) {
+    const id = "c" + J.indexOf(j);
+    const sel = j.vhb[state.area];
+    const nAreas = Object.keys(j.vhb).length;
+    const areaName = AREAS[state.area].de;
+    let vhbBadge, vhbSub;
+    if (sel && sel.rating) {
+      vhbBadge = badge(sel.rating);
+      vhbSub = `${esc(state.area)} · ${sel.votes}&nbsp;%`;
+    } else if (sel && sel.practice) {
+      vhbBadge = `<span class="badge none">Praxis</span>`;
+      vhbSub = `${esc(state.area)}: nur Praxis ${esc(sel.practice)}`;
+    } else if (nAreas) {
+      vhbBadge = `<span class="badge none">–</span>`;
+      vhbSub = `nicht in ${esc(state.area)}; bestes ${esc(j.vhb_best)} (${esc(j.vhb_best_area)})`;
+    } else {
+      vhbBadge = `<span class="badge none">–</span>`;
+      vhbSub = "nicht gelistet";
+    }
+    if (sel && sel.rating && j.vhb_best && VHB_RANK[j.vhb_best] > VHB_RANK[sel.rating]) {
+      vhbSub += `<br>bestes ${esc(j.vhb_best)} (${esc(j.vhb_best_area)})`;
+    }
+    const abdcSub = j.abdc ? (j.abdc_for ? `FoR ${esc(j.abdc_for)}` : "") : "nicht gelistet";
+    const meta = [];
+    if (j.issn.length) meta.push(`<span>ISSN ${esc(j.issn.join(", "))}</span>`);
+    if (j.publisher) meta.push(`<span>${esc(j.publisher)}</span>`);
+    if (j.abdc_for_name) meta.push(`<span>${esc(j.abdc_for_name)}</span>`);
+    if (j.type === "Proceedings") meta.unshift(`<span class="tag">Konferenz</span>`);
+    const alt = j.alt_titles.filter((t) => norm(t) !== norm(j.title));
+    const isOpen = state.open.has(id);
+    const rows = vhbSorted(j).map(([c, v]) => `<tr class="${c === state.area ? "sel" : ""}">
+        <td class="code">${esc(c)}</td><td>${esc(AREAS[c] ? AREAS[c].de : c)}</td>
+        <td>${v.rating ? badge(v.rating, "sm") : `<span class="badge sm none">–</span>`}${v.practice ? ` <span class="num">Praxis ${esc(v.practice)}</span>` : ""}</td>
+        <td class="num">${v.rating ? v.votes + "&nbsp;%" : ""}</td></tr>`).join("");
+    return `<article class="card" id="${id}">
+      <div class="card-main">
+        <div>
+          <h2 class="title">${highlight(j.title, q)}</h2>
+          ${alt.length ? `<div class="alt">auch: ${esc(alt.slice(0, 3).join(" · "))}</div>` : ""}
+          <div class="meta">${meta.join("")}</div>
+        </div>
+        <div class="ratings">
+          <div class="rbox" aria-label="ABDC 2025 Rating ${esc(j.abdc || "nicht gelistet")}"><div class="src">ABDC 2025</div>${badge(j.abdc)}<div class="sub">${abdcSub}</div></div>
+          <div class="rbox" title="${esc(areaName)}"><div class="src">VHB 2024</div>${vhbBadge}<div class="sub">${vhbSub}</div></div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <button class="toggle" type="button" data-id="${id}" aria-expanded="${isOpen}" aria-controls="${id}-a" ${nAreas ? "" : "disabled"}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          ${nAreas ? `Alle VHB-Bereiche (${nAreas})` : "In keinem VHB-Bereich"}
+        </button>
+        <button class="copy" type="button" data-copy="${J.indexOf(j)}" aria-label="Ratings von ${esc(j.title)} kopieren">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Kopieren
+        </button>
+      </div>
+      <div class="areas ${isOpen ? "open" : ""}" id="${id}-a">
+        ${nAreas ? `<table><thead><tr><th>Kürzel</th><th>Bereich</th><th>Rating</th><th style="text-align:right">Stimmen</th></tr></thead><tbody>${rows}</tbody></table>
+        <div class="note">Stimmen: Anteil der Bewertungen mit mindestens diesem Rating.${j.vhb.RECH && j.vhb.RECH.practice ? " Sterne: Beitrag zur Praxis (nur Rechnungswesen)." : ""}</div>` : ""}
+      </div>
+    </article>`;
+  }
+
+  function intro() {
+    const c = DATA.meta.counts;
+    const examples = ["Journal of Finance", "JFQA", "Management Science", "Review of Finance", "1540-6261", "Zeitschrift für Betriebswirtschaft"];
+    return `<section class="intro">
+      <div class="stats">
+        <div class="stat"><div class="n">${c.journals.toLocaleString("de")}</div><div class="l">Zeitschriften gesamt</div></div>
+        <div class="stat"><div class="n">${c.abdc.toLocaleString("de")}</div><div class="l">im ABDC 2025</div></div>
+        <div class="stat"><div class="n">${c.vhb.toLocaleString("de")}</div><div class="l">im VHB 2024 (18 Bereiche)</div></div>
+        <div class="stat"><div class="n">${c.both.toLocaleString("de")}</div><div class="l">in beiden Listen</div></div>
+      </div>
+      <h2>Beispiele</h2>
+      <div class="chips">${examples.map((e) => `<button class="chip" type="button" data-ex="${esc(e)}">${esc(e)}</button>`).join("")}</div>
+      <p class="hint">Oder den gewählten VHB-Bereich vollständig ansehen:</p>
+      <div class="chips"><button class="chip" type="button" id="browse">Alle Zeitschriften in ${esc(AREAS[state.area].de)} anzeigen</button></div>
+      <div class="legend" aria-label="Legende">
+        <span>${badge("A*", "sm")} ${badge("A+", "sm")} Spitze</span>
+        <span>${badge("A", "sm")} führend</span>
+        <span>${badge("B", "sm")} wichtig</span>
+        <span>${badge("C", "sm")} anerkannt</span>
+        <span>${badge("D", "sm")} sonstige (nur VHB)</span>
+      </div>
+    </section>`;
+  }
+
+  function noHits(q) {
+    const qn = norm(q);
+    const sugg = J.map((j) => [Math.max(...j._keys.map((k) => similarity(qn, k))), j])
+      .sort((a, b) => b[0] - a[0]).slice(0, 5).filter((x) => x[0] > 0.35);
+    return `<section class="intro"><h2>Keine Treffer für „${esc(q)}“</h2>
+      <p class="hint" style="margin-top:0">Vielleicht ist eine dieser Zeitschriften gemeint?${state.list !== "all" ? " Der Filter „Gelistet in“ ist aktiv." : ""}</p>
+      <div class="chips">${sugg.map(([, j]) => `<button class="chip" type="button" data-ex="${esc(j.title)}">${esc(j.title)}</button>`).join("") || "<span class='hint'>Keine ähnlichen Titel gefunden. Tipp: nur ein markantes Wort oder die ISSN eingeben.</span>"}</div></section>`;
+  }
+
+  let lastList = [];
+  function compute() {
+    const q = norm(state.q);
+    if (q) {
+      return J.map((j) => [score(q, j), j]).filter(([s, j]) => s > 0 && passesList(j))
+        .sort((a, b) => Math.round(b[0]) - Math.round(a[0]) || b[1]._prom - a[1]._prom || a[1].title.length - b[1].title.length)
+        .map((x) => x[1]);
+    }
+    if (state.browse) {
+      return J.filter((j) => j.vhb[state.area] && passesList(j)).sort((a, b) => {
+        const va = j_v(a), vb = j_v(b);
+        return (VHB_RANK[vb.rating] || 0) - (VHB_RANK[va.rating] || 0) || vb.votes - va.votes || a.title.localeCompare(b.title);
+      });
+    }
+    return null;
+  }
+  const j_v = (j) => j.vhb[state.area] || { rating: "", votes: 0 };
+
+  function render() {
+    const list = compute();
+    lastList = list || [];
+    const res = $("#results");
+    $("#clear").hidden = !state.q;
+    if (list === null) {
+      res.innerHTML = intro();
+      $("#count").textContent = "";
+      $("#sortinfo").textContent = "";
+      $("#more").hidden = true;
+      return;
+    }
+    if (!list.length) {
+      res.innerHTML = state.q ? noHits(state.q) : `<section class="intro"><h2>Keine Zeitschriften für diesen Filter</h2></section>`;
+      $("#count").textContent = "0 Treffer";
+      $("#more").hidden = true;
+      return;
+    }
+    res.innerHTML = list.slice(0, state.shown).map((j) => card(j, state.q)).join("");
+    const n = list.length;
+    $("#count").textContent = state.q
+      ? `${n.toLocaleString("de")} Treffer`
+      : `${n.toLocaleString("de")} Zeitschriften in ${AREAS[state.area].de}`;
+    $("#sortinfo").textContent = state.q ? "sortiert nach Übereinstimmung" : "sortiert nach VHB-Rating";
+    $("#more").hidden = n <= state.shown;
+  }
+
+  // ---------- events
+  let timer;
+  $("#q").addEventListener("input", (e) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { state.q = e.target.value; state.shown = PAGE; state.browse = false; state.open.clear(); render(); }, 90);
+  });
+  $("#q").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.target.value = ""; state.q = ""; render(); } });
+  $("#clear").addEventListener("click", () => { $("#q").value = ""; state.q = ""; state.browse = false; render(); $("#q").focus(); });
+  areaSel.addEventListener("change", () => { state.area = areaSel.value; store.set("area", state.area); render(); });
+  $("#listfilter").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.list = b.dataset.v; store.set("list", state.list); state.shown = PAGE;
+    for (const x of $("#listfilter").children) x.setAttribute("aria-pressed", String(x === b));
+    render();
+  });
+  for (const x of $("#listfilter").children) x.setAttribute("aria-pressed", String(x.dataset.v === state.list));
+  $("#morebtn").addEventListener("click", () => { state.shown += PAGE; render(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement !== $("#q") && !/input|select|textarea/i.test(document.activeElement.tagName)) {
+      e.preventDefault(); $("#q").focus(); $("#q").select();
+    }
+  });
+  $("#results").addEventListener("click", (e) => {
+    const ex = e.target.closest("[data-ex]");
+    if (ex) { $("#q").value = ex.dataset.ex; state.q = ex.dataset.ex; state.shown = PAGE; render(); $("#q").focus(); return; }
+    if (e.target.closest("#browse")) { state.browse = true; state.shown = PAGE; render(); return; }
+    const t = e.target.closest(".toggle");
+    if (t && !t.disabled) {
+      const id = t.dataset.id, panel = document.getElementById(id + "-a");
+      const open = !panel.classList.contains("open");
+      panel.classList.toggle("open", open); t.setAttribute("aria-expanded", String(open));
+      open ? state.open.add(id) : state.open.delete(id);
+      return;
+    }
+    const c = e.target.closest("[data-copy]");
+    if (c) {
+      const j = J[+c.dataset.copy];
+      const sel = j.vhb[state.area];
+      const parts = [`ABDC 2025: ${j.abdc || "nicht gelistet"}`,
+        `VHB 2024 (${state.area}): ${sel ? (sel.rating || "nur Praxis " + sel.practice) : "nicht gelistet"}`];
+      if (j.vhb_best && (!sel || j.vhb_best_area !== state.area)) parts.push(`VHB bestes: ${j.vhb_best} (${j.vhb_best_area})`);
+      const text = `${j.title} — ${parts.join("; ")}`;
+      const done = () => toast("Kopiert: " + text.slice(0, 80) + (text.length > 80 ? "…" : ""));
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done));
+      else fallbackCopy(text, done);
+    }
+  });
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
+  }
+  let tt;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("show"), 1800); }
+
+  $("#srcinfo").textContent = `Datenstand ${DATA.meta.built} · Quellen: ${DATA.meta.abdc_source}, ${DATA.meta.vhb_source}.`;
+  const params = new URLSearchParams(location.search);
+  if (params.get("q")) { $("#q").value = params.get("q"); state.q = params.get("q"); }
+  render();
+})();
+</script>
+</body>
+</html>

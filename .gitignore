@@ -1,0 +1,6 @@
+# Originallisten von ABDC und VHB werden nicht verteilt (siehe README, "Daten aktualisieren")
+quellen/*
+!quellen/README.md
+
+__pycache__/
+*.pyc

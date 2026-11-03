@@ -1,0 +1,4 @@
+Hinweise aus dem letzten Lauf von build_ratings.py (Zuordnung und Einlesen):
+
+Titel und ISSN widersprechen sich: VHB "Review of Financial Economics" (2693-9320) -> per Titel "Review of Financial Economics", per ISSN "Review of Corporate Finance" (Titel gilt)
+Aehnlicher Titel verknuepft: VHB "Food Quality and Preferences" -> ABDC "Food Quality and Preference"
